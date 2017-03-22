@@ -15,11 +15,9 @@ class Boid(object):
 
     def seek(self, scalingfactor):
         """Seeking Behaviour."""
-        dist = vec.get_dist(self.position, self.target.position)
-        direction = vec.get_normalized(dist)
-        self._addforce((direction[0] * (vec.get_magnitude(dist)),
-                        direction[1] * (vec.get_magnitude(dist)))
-                      )
+        displacement = vec.get_dist(self.position, self.target.position)
+        direction = vec.get_normalized(displacement)
+        self._addforce((direction[0] * 20000, direction[1] * 20000))
         self._updateacceleration(scalingfactor)
         self._updatevelocity(scalingfactor)
         self._updateposition()
@@ -40,16 +38,16 @@ class Boid(object):
         pass
 
     def _addforce(self, forceapplied):
-        self.forceapplied = (forceapplied[0],
+        self.forceapplied=(forceapplied[0],
                              forceapplied[1])
 
     def _updateacceleration(self, deltatime):
-        self.acceleration = (self.acceleration[0] + self.forceapplied[0] * deltatime,
-                             self.acceleration[1] + self.forceapplied[1] * deltatime)
+        self.acceleration = ((self.acceleration[0] + self.forceapplied[0]) * deltatime,
+                             (self.acceleration[1] + self.forceapplied[1]) * deltatime)
 
     def _updatevelocity(self, deltatime):
-        self.velocity = (self.velocity[0] + self.acceleration[0] * deltatime,
-                         self.velocity[1] + self.acceleration[1] * deltatime)
+        self.velocity = ((self.velocity[0] + self.acceleration[0]) * deltatime,
+                         (self.velocity[1] + self.acceleration[1]) * deltatime)
         self.acceleration = (0, 0)
         if vec.get_magnitude(self.velocity) > self.maxvelo:
             self.velocity = (vec.get_normalized(self.velocity)[0] * self.maxvelo, vec.get_normalized(self.velocity)[1] * self.maxvelo)

@@ -14,7 +14,7 @@ if __name__ == "__main__":
     BOIDS = []
     TARGETBOID = boids.Boid()
     TARGETBOID.position = (SCREEN.get_width() / 2, SCREEN.get_height() / 2)
-    for itera in range(10000):
+    for itera in range(10):
         BOIDS.append(boids.Boid())
         BOIDS[itera].position = (random.randrange(0, SCREEN.get_width() + 1),
                                  random.randrange(0, SCREEN.get_height() + 1))

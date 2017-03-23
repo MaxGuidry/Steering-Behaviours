@@ -32,7 +32,7 @@ class Boid(object):
         displacement = vec.get_dist(self.position, self.target.position)
         direction = vec.get_normalized(displacement)
         if vec.get_magnitude(displacement) != 0:
-            self._addforce((direction[0] * ((1 / vec.get_magnitude(displacement)) * self.bounds[0] * self.bounds[0]) * -200, direction[1] * ((1 / vec.get_magnitude(displacement)) * self.bounds[1] * self.bounds[1]) * -200))
+            self._addforce((direction[0] * ((1 / vec.get_magnitude(displacement)) * self.bounds[0] * self.bounds[0]) * -1, direction[1] * ((1 / vec.get_magnitude(displacement)) * self.bounds[1] * self.bounds[1]) * -1))
         self._updateacceleration(scalingfactor)
         self._updatevelocity(scalingfactor)
         self._updateposition()

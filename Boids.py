@@ -44,7 +44,6 @@ class Boid(object):
             degree = random.choice((30, 60, 90, 120, 150, 180, 210, 240, 270, 300, 330, 360))
             offset = random.randrange(1, 30)
             degree += offset
-            print degree
             direction = (math.sin((degree * math.pi) / 180), math.cos((degree * math.pi) / 180))
             self.target = Boid((99999, 99999))
             self.target.position = (self.position[0] + direction[0], self.position[1] + direction[1])
@@ -78,7 +77,7 @@ class Boid(object):
             if b != self:
                 com = (com[0] + b.position[0], com[1] + b.position[1])
         com = (com[0] / (len(boids) - 1), com[1] / (len(boids) - 1))
-        self._addforce((vec.get_dist(com, self.position)[0] / 1, vec.get_dist(com, self.position)[1] / 1))
+        #self._addforce((vec.get_dist(com, self.position)[0] / 8, vec.get_dist(com, self.position)[1] / 8))
 
     def _addforce(self, forceapplied):
         self.forceapplied = (self.forceapplied[0] + forceapplied[0],

@@ -7,6 +7,8 @@ def get_magnitude(vec):
 
 
 def get_normalized(vec):
+    if get_magnitude(vec) <= 0:
+        return (0, 0)
     return (vec[0] / get_magnitude(vec), vec[1]
             / get_magnitude(vec))
 

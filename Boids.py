@@ -21,18 +21,30 @@ class Agent(object):
         self.target = None
         self.forceapplied = (0, 0)
         self.bounds = positionbound
+        self.forward = (1, 0)
         self.wandertimer = 0
+        self.surface = pygame.Surface((20, 20), pygame.SRCALPHA)
+        pygame.draw.line(self.surface, (0,
+                         random.randrange(100, 256),
+                         random.randrange(0, 150)),
+                         (0, 0), (10, 5), 3)
+        pygame.draw.line(self.surface, (0,
+                         random.randrange(100, 256),
+                         random.randrange(0, 150)),
+                         (10, 5), (0, 10), 3)
+        pygame.draw.line(self.surface, (0,
+                         random.randrange(100, 256),
+                         random.randrange(0, 150)),
+                         (0, 10), (0, 0), 3)
 
     def update(self, deltatime):
         self.seek(deltatime)
+        self.wandertimer = 1
 
-    def draw(self):
-        testscreen = pygame.display.get_surface()
-        pygame.draw.circle(pygame.display.get_surface(), (0,
-                           random.randrange(100, 256),
-                                    random.randrange(0, 150)),
-                           (int(round(self.position[0])),
-                            int(round(self.position[1]))), 10, 0)
+    def draw(self, screen):
+        pygame.transform.rotate(self.surface, (180 * math.asin(self.velocity[1]/vec.get_magnitude(self.velocity))) / math.pi)
+        screen.blit(self.surface, self.position)
+        pygame.transform.rotate(self.surface, (180 * math.asin(self.velocity[1]/vec.get_magnitude(self.velocity))) / math.pi)
 
     def seek(self, scalingfactor):
         """Seeking Behaviour."""

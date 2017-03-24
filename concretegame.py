@@ -34,9 +34,9 @@ class ConcreteGame(GameTemplate):
         self.targetboid.position = pygame.mouse.get_pos()
         for gameobjs in self._gameobjects:
             if type(gameobjs) == boids.Agent:
-                if vec.get_dist(gameobjs.position, self.targetboid.position) > 200:
+                if vec.get_magnitude(vec.get_dist(gameobjs.position, self.targetboid.position)) > 200:
                     gameobjs.wander(self.deltatime)
-                    print gameobjs.velocity
+                    # print gameobjs.velocity
                 else:
                     gameobjs.settarget(self.targetboid)
                     gameobjs.update(self.deltatime)
@@ -47,7 +47,7 @@ class ConcreteGame(GameTemplate):
     def draw(self):
         '''draw all gameobjects added to this game'''
         for gameobj in self._gameobjects:
-            gameobj.draw()
+            gameobj.draw(self.surface)
         super(ConcreteGame, self).draw()
 
     def run(self):

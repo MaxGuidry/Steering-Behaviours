@@ -1,5 +1,6 @@
 """Concrete game."""
 import boids
+import vectoroperations as vec
 from game import GameTemplate
 import pygame
 
@@ -11,14 +12,18 @@ class ConcreteGame(GameTemplate):
         super(ConcreteGame, self).__init__()
         self._name = name
         self._gameobjects = []
-        self.targetboid = boids.Agent()
+        self.targetboid = boids.Agent((pygame.display.get_surface().get_width(), pygame.display.get_surface().get_height()))
 
     def addtobatch(self, gameobject):
         """Add gameobjects to this game."""
         self._gameobjects.append(gameobject)
+        if type(gameobject) == boids.Agent:
+            gameobject.settarget(self.targetboid)
 
     def update(self):
         """Update this games logic."""
+        self.clock.tick(60)
+        self.deltatime = float(self.clock.get_time()) / float(1000)
         if not super(ConcreteGame, self).update():
             return False
         events = pygame.event.get()
@@ -28,7 +33,15 @@ class ConcreteGame(GameTemplate):
                     return False
         self.targetboid.position = pygame.mouse.get_pos()
         for gameobjs in self._gameobjects:
-            gameobjs.update(self.deltatime)
+            if type(gameobjs) == boids.Agent:
+                if vec.get_dist(gameobjs.position, self.targetboid.position) > 200:
+                    gameobjs.wander(self.deltatime)
+                    print gameobjs.velocity
+                else:
+                    gameobjs.settarget(self.targetboid)
+                    gameobjs.update(self.deltatime)
+            else:
+                gameobjs.update(self.deltatime)
         return True
 
     def draw(self):

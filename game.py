@@ -13,6 +13,7 @@ class GameTemplate(object):
         """Constructor."""
         pygame.display.init()
         pygame.display.set_mode((1080, 720))
+        self.clock = pygame.time.Clock()
         self.deltatime = 0.0
 
     def startup(self):
@@ -24,6 +25,7 @@ class GameTemplate(object):
         return True
 
     def draw(self):
+        pygame
         pygame.display.flip()
         return True
 

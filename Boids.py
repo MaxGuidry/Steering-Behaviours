@@ -24,7 +24,7 @@ class Agent(object):
         self.wandertimer = 0
 
     def update(self, deltatime):
-        pass
+        self.seek(deltatime)
 
     def draw(self):
         testscreen = pygame.display.get_surface()
@@ -86,6 +86,9 @@ class Agent(object):
                          (newpositioin[1] - previousposition[1]) * 1)
         self.target.position = ((self.position[0] + deltaposition[0]) * 1,
                                 (self.position[1] + deltaposition[1]) * 1)
+
+    def settarget(self, target):
+        self.target = target
 
     def centerofmass(self, boids):
         """Calculate the center of mass of all agents."""

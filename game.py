@@ -1,33 +1,32 @@
-"""Game file for update draw ect..."""
+"""Game Template."""
+
+# from gameobject import GameObject
+import pygame
+
+from constants import *
 
 
-class Game(object):
-    """Game control class."""
+class GameTemplate(object):
+    """pygame object."""
 
     def __init__(self):
         """Constructor."""
-        self.batch = []
+        pygame.display.init()
+        pygame.display.set_mode((1080, 720))
+        self.deltatime = 0.0
 
-    def addtobatch(self, obj):
-        """Add object to batch."""
-        self.batch.append(obj)
+    def startup(self):
+        """Do startup routines."""
+        return True
 
-    def start(self):
-        """Start."""
-        pass
-
-    def update(self, deltatime):
-        """Update."""
-        pass
+    def update(self):
+        """Input and time."""
+        return True
 
     def draw(self):
-        """Draw."""
-        pass
+        pygame.display.flip()
+        return True
 
-    def run(self):
-        """Run."""
-        pass
-
-    def exit(self):
-        """Exit."""
-        pass
+    def shutdown(self):
+        """Shutdown Game properly."""
+        return True

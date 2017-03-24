@@ -1,8 +1,12 @@
 """Main file."""
-import pygame
-import boids
 import random
+
+import pygame  
+# pylint: disable=no-member
+
+import boids
 import vectoroperations as vec
+
 
 random.seed()
 pygame.init()
@@ -12,10 +16,10 @@ if __name__ == "__main__":
     pygame.display.set_mode((1080, 720))
     SCREEN = pygame.display.get_surface()
     BOIDS = []
-    TARGETBOID = boids.Boid((SCREEN.get_width(), SCREEN.get_height()))
+    TARGETBOID = boids.Agent((SCREEN.get_width(), SCREEN.get_height()))
     TARGETBOID.position = (SCREEN.get_width() / 2, SCREEN.get_height() / 2)
-    for itera in range(200):
-        BOIDS.append(boids.Boid((SCREEN.get_width(), SCREEN.get_height())))
+    for itera in range(100):
+        BOIDS.append(boids.Agent((SCREEN.get_width(), SCREEN.get_height())))
         BOIDS[itera].position = (random.randrange(0, SCREEN.get_width() + 1),
                                  random.randrange(0, SCREEN.get_height() + 1))
         BOIDS[itera].target = TARGETBOID
@@ -52,20 +56,19 @@ if __name__ == "__main__":
                 if RAGETIMER > 3:
                     RAGE = False
                     RAGETIMER = 0
-            elif vec.get_magnitude(vec.get_dist(boid.position, TARGETBOID.position)) > 200:
+            elif vec.get_magnitude(vec.get_dist(boid.position,
+                                                TARGETBOID.position)) > 200:
                 boid.maxvelo = 5
-                #boid.centerofmass(BOIDS)
+                # boid.centerofmass(BOIDS)
                 boid.wander(DELTATIME)
-                
+
             else:
                 boid.wandertimer = 1
                 boid.target = TARGETBOID
                 boid.maxvelo = 10
                 boid.seek(DELTATIME)
-            pygame.draw.circle(SCREEN, (0, random.randrange(100, 256), random.randrange(0, 150)),
+            pygame.draw.circle(SCREEN, (0, random.randrange(100, 256),
+                                        random.randrange(0, 150)),
                                (int(round(boid.position[0])),
-                               int(round(boid.position[1]))), 10, 0)
-
-        
-        
+                                int(round(boid.position[1]))), 10, 0)
         pygame.display.flip()

@@ -11,6 +11,8 @@ class Agent(object):
     """Class Agent."""
 
     # pylint: disable=too-many-instance-attributes
+    # pylint: disable=no-member
+    # pylint: disable=too-many-function-args
 
     def __init__(self, positionbound):
         """Constructor."""
@@ -22,7 +24,6 @@ class Agent(object):
         self.target = None
         self.forceapplied = (0, 0)
         self.bounds = positionbound
-        self.forward = (1, 0)
         self.wandertimer = 1
         self.wanderangle = 0
         self.scared = False
@@ -42,6 +43,7 @@ class Agent(object):
                          (0, 50), (0, 0), 3)
 
     def update(self, deltatime):
+        """Update function for agents."""
         if self.scared:
             self._addforce(self.flee())
         elif self.bored:
@@ -50,15 +52,16 @@ class Agent(object):
             self.maxvelo = 200
             self._addforce(self.seek())
             self.wandertimer = 1
-        self._updateacceleration(deltatime)
+        self._updateacceleration()
         self._updatevelocity(deltatime)
         self._updateposition(deltatime)
 
-
     def draw(self, screen):
+        """Draw function for agents."""
         self.heading = vec.get_normalized(self.velocity)
         copy = pygame.transform.rotate(
-            self.surface, -1 * (180 * math.atan2(self.heading[1], self.heading[0])) / math.pi)
+            self.surface, -1 * (180 * math.atan2(self.heading[1],
+                                                 self.heading[0])) / math.pi)
         screen.blit(copy, self.position)
 
     def seek(self):
@@ -67,8 +70,9 @@ class Agent(object):
         direction = vec.get_normalized(displacement)
         if vec.get_magnitude(displacement) == 0:
             return self.flee()
-        return(direction[0] * vec.get_magnitude(displacement) * 2000, direction[1] *
-               vec.get_magnitude(displacement) * 2000)
+        return(direction[0] * vec.get_magnitude(displacement) * 4,
+               direction[1] *
+               vec.get_magnitude(displacement) * 4)
 
     def flee(self):
         """Flee behavior."""
@@ -78,16 +82,17 @@ class Agent(object):
             return(direction[0] * ((1 /
                                     vec.get_magnitude(displacement))
                                    * self.bounds[0] * self.bounds[0])
-                   * -10,
+                   * -.1,
                    direction[1] * ((1 /
                                     vec.get_magnitude(displacement))
                                    * self.bounds[1] * self.bounds[1])
-                   * -10)
+                   * -.1)
         else:
             return (0, 0)
 
-    def otherwander(self, radius, dist, jitter, strength):
-        return None
+    # def otherwander(self, radius, dist, jitter, strength):
+    #     """The correct way to wander."""
+    #     return None
 
     def wander(self, deltatime):
         """Behaviour that wanders."""
@@ -96,25 +101,29 @@ class Agent(object):
             self.wandertimer = 0
             angle = -60
             self.wanderangle = angle + random.randrange(0, 120)
-            currentangle = math.atan2(self.heading[1], self.heading[0]) * (180 / math.pi)
+            currentangle = math.atan2(
+                self.heading[1], self.heading[0]) * (180 / math.pi)
             currentangle += self.wanderangle
-            direction = (math.cos((currentangle / 180) * math.pi), math.sin((currentangle / 180) * math.pi))
-            # self.heading = direction
-            self.target = Agent((999999, 999999))
+            direction = (math.cos((currentangle / 180) * math.pi),
+                         math.sin((currentangle / 180) * math.pi))
+            #self.target = Agent((999999, 999999))
             self.target.position = ((self.position[0] + direction[0]),
                                     (self.position[1] + direction[1]))
         self.wandertimer += deltatime
-        currentangle = math.atan2(self.heading[1], self.heading[0]) * (180 / math.pi)
+        currentangle = math.atan2(
+            self.heading[1], self.heading[0]) * (180 / math.pi)
         currentangle += self.wanderangle
-        direction = (math.cos((currentangle / 180) * math.pi), math.sin((currentangle / 180) * math.pi))
+        direction = (math.cos((currentangle / 180) * math.pi),
+                     math.sin((currentangle / 180) * math.pi))
         self.heading = direction
         self.target.position = (self.position[0] + direction[0],
                                 self.position[1] + direction[1])
         forcetoadd = self.seek()
-        forcetoadd = (forcetoadd[0] / 10, forcetoadd[1] / 10)
+        forcetoadd = (forcetoadd[0] * 45, forcetoadd[1] * 45)
         return forcetoadd
 
     def settarget(self, target):
+        """Set the target of the agent."""
         self.target = target
 
     def centerofmass(self, boids):
@@ -133,7 +142,7 @@ class Agent(object):
         self.forceapplied = (self.forceapplied[0] + forceapplied[0],
                              self.forceapplied[1] + forceapplied[1])
 
-    def _updateacceleration(self, deltatime):
+    def _updateacceleration(self):
         self.acceleration = (self.forceapplied[0],
                              self.forceapplied[1])
         self.forceapplied = (0, 0)

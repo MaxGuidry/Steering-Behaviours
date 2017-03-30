@@ -1,13 +1,16 @@
 """Concrete game."""
-import pygame
+import math
 
+import pygame
+import random
 import boids
-import vectoroperations as vec
 from game import GameTemplate
 
 
 class ConcreteGame(GameTemplate):
     """Need documentation."""
+
+    # pylint: disable=no-member
 
     def __init__(self, name):
         """Need documentation."""
@@ -15,6 +18,8 @@ class ConcreteGame(GameTemplate):
         self._name = name
         self.flee = False
         self.wander = True
+        pygame.font.init()
+        self.font = pygame.font.SysFont('mono', 20)
         self._gameobjects = []
         self.targetboid = boids.Agent((pygame.display.get_surface(
         ).get_width(), pygame.display.get_surface().get_height()))
@@ -47,8 +52,15 @@ class ConcreteGame(GameTemplate):
                     self.flee = False
                 if event.key == pygame.K_SPACE:
                     self.addtobatch(boids.Agent((pygame.display.get_surface(
-                                   ).get_width(),
-                                   pygame.display.get_surface().get_height())))
+                    ).get_width(),
+                        pygame.display.get_surface().get_height())))
+                if event.key == pygame.K_DELETE:
+                    if len(self._gameobjects) > 0:
+                        self._gameobjects.remove(
+                            self._gameobjects[
+                                random.randrange(0, len(self._gameobjects))])
+            if event.type == pygame.QUIT:
+                return False
         self.targetboid.position = pygame.mouse.get_pos()
         for gameobjs in self._gameobjects:
             if type(gameobjs) == boids.Agent:
@@ -66,13 +78,21 @@ class ConcreteGame(GameTemplate):
         return True
 
     def draw(self):
-        '''draw all gameobjects added to this game'''
+        """Draw all gameobjects added to this game."""
         for gameobj in self._gameobjects:
             gameobj.draw(self.surface)
+        test = "\'spacebar to spawn an agent\'    \'s to Seek\'"
+        test = test + "     \'w to Wander\'    \'f to Flee\'"
+        fps = "fps: {},  objects in game: {}".format(
+            int(math.floor(self.clock.get_fps())), len(self._gameobjects))
+        fpstext = self.font.render(fps, True, (255, 255, 255))
+        testthing = self.font.render(test, True, (255, 255, 255))
+        self.surface.blit(testthing, (0, 0))
+        self.surface.blit(fpstext, (0, 20))
         super(ConcreteGame, self).draw()
 
     def run(self):
-        '''need documentation'''
+        """Need documentation."""
         if super(ConcreteGame, self).startup():
             while self.update():
                 self.draw()

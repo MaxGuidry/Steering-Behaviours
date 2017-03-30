@@ -15,4 +15,3 @@ def get_normalized(vec):
 
 def get_dist(vec1, vec2):
     return (vec2[0] - vec1[0], vec2[1] - vec1[1])
-

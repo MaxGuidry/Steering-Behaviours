@@ -15,16 +15,18 @@ class Agent(object):
     def __init__(self, positionbound):
         """Constructor."""
         self.position = (0, 0)
-        self.velocity = (0, 0)
+        self.velocity = (100, 100)
         self.heading = (1, 0)
         self.acceleration = (0, 0)
-        self.maxvelo = 10
+        self.maxvelo = 200
         self.target = None
         self.forceapplied = (0, 0)
         self.bounds = positionbound
         self.forward = (1, 0)
         self.wandertimer = 1
+        self.wanderangle = 0
         self.scared = False
+        self.bored = True
         self.surface = pygame.Surface((75, 50), pygame.SRCALPHA)
         pygame.draw.line(self.surface, (0,
                                         random.randrange(100, 256),
@@ -40,16 +42,23 @@ class Agent(object):
                          (0, 50), (0, 0), 3)
 
     def update(self, deltatime):
-        if vec.get_magnitude(vec.get_dist(self.position, self.target.position)) < 400 and self.target.bounds != (999999, 999999):
-            self._addforce(self.seek(), deltatime)
-            self.wandertimer = 1
+        if self.scared:
+            self._addforce(self.flee())
+        elif self.bored:
+            self._addforce(self.wander(deltatime))
         else:
-            self._addforce(self.wander(deltatime), deltatime)
+            self.maxvelo = 200
+            self._addforce(self.seek())
+            self.wandertimer = 1
+        self._updateacceleration(deltatime)
+        self._updatevelocity(deltatime)
+        self._updateposition(deltatime)
+
 
     def draw(self, screen):
+        self.heading = vec.get_normalized(self.velocity)
         copy = pygame.transform.rotate(
             self.surface, -1 * (180 * math.atan2(self.heading[1], self.heading[0])) / math.pi)
-        self.heading = vec.get_normalized(self.velocity)
         screen.blit(copy, self.position)
 
     def seek(self):
@@ -82,26 +91,27 @@ class Agent(object):
 
     def wander(self, deltatime):
         """Behaviour that wanders."""
-        time = random.uniform(.6, .8)
+        time = random.uniform(.2, .4)
         if self.wandertimer > time:
             self.wandertimer = 0
-            degree = -60
-            offset = random.randrange(1, 120)
-            degree += offset
+            angle = -60
+            self.wanderangle = angle + random.randrange(0, 120)
             currentangle = math.atan2(self.heading[1], self.heading[0]) * (180 / math.pi)
-            currentangle += degree
+            currentangle += self.wanderangle
             direction = (math.cos((currentangle / 180) * math.pi), math.sin((currentangle / 180) * math.pi))
+            # self.heading = direction
             self.target = Agent((999999, 999999))
             self.target.position = ((self.position[0] + direction[0]),
                                     (self.position[1] + direction[1]))
         self.wandertimer += deltatime
-        self.maxvelo = 3
+        currentangle = math.atan2(self.heading[1], self.heading[0]) * (180 / math.pi)
+        currentangle += self.wanderangle
+        direction = (math.cos((currentangle / 180) * math.pi), math.sin((currentangle / 180) * math.pi))
+        self.heading = direction
+        self.target.position = (self.position[0] + direction[0],
+                                self.position[1] + direction[1])
         forcetoadd = self.seek()
-        forcetoadd = (forcetoadd[0] * self.maxvelo,
-                      forcetoadd[1] * self.maxvelo)
-        newposfortarget = ((forcetoadd[0] * deltatime * deltatime) * 2 + self.position[0],
-                           (forcetoadd[1] * deltatime * deltatime) * 2 + self.position[1])
-        self.target.position = newposfortarget
+        forcetoadd = (forcetoadd[0] / 10, forcetoadd[1] / 10)
         return forcetoadd
 
     def settarget(self, target):
@@ -117,40 +127,33 @@ class Agent(object):
         # self._addforce((vec.get_dist(com, self.position)[0] / 8,
         # vec.get_dist(com, self.position)[1] / 8))
 
-    def _addforce(self, forceapplied, deltatime):
+    def _addforce(self, forceapplied):
         if forceapplied is None:
             return
         self.forceapplied = (self.forceapplied[0] + forceapplied[0],
                              self.forceapplied[1] + forceapplied[1])
-        self._updateacceleration(deltatime)
-        self._updatevelocity(deltatime)
-        self._updateposition(deltatime)
 
     def _updateacceleration(self, deltatime):
-        self.acceleration = (self.forceapplied[0] * deltatime,
-                             self.forceapplied[1] * deltatime)
+        self.acceleration = (self.forceapplied[0],
+                             self.forceapplied[1])
         self.forceapplied = (0, 0)
 
     def _updatevelocity(self, deltatime):
-        self.velocity = ((self.velocity[0] + self.acceleration[0]) * deltatime,
-                         (self.velocity[1] + self.acceleration[1]) * deltatime)
+        self.velocity = ((self.velocity[0]) + self.acceleration[0] * deltatime,
+                         (self.velocity[1]) + self.acceleration[1] * deltatime)
         if vec.get_magnitude(self.velocity) > self.maxvelo:
             self.velocity = (vec.get_normalized(self.velocity)[0] *
                              self.maxvelo, vec.get_normalized(self.velocity)[1]
                              * self.maxvelo)
 
     def _updateposition(self, deltatime):
-        self.position = (self.position[0] + self.velocity[0],
-                         self.position[1] + self.velocity[1])
-        if self.position[0] < 10:
-            self.position = (10, self.position[1])
-            self.position = (self.bounds[0] / 2, self.bounds[1] / 2)
-        if self.position[1] < 10:
-            self.position = (self.position[0], 10)
-            self.position = (self.bounds[0] / 2, self.bounds[1] / 2)
-        if self.position[0] > self.bounds[0] - 10:
-            self.position = (self.bounds[0] - 10, self.position[1])
-            self.position = (self.bounds[0] / 2, self.bounds[1] / 2)
-        if self.position[1] > self.bounds[1] - 10:
-            self.position = (self.position[0], self.bounds[1] - 10)
-            self.position = (self.bounds[0] / 2, self.bounds[1] / 2)
+        self.position = ((self.position[0]) + self.velocity[0] * deltatime,
+                         (self.position[1]) + self.velocity[1] * deltatime)
+        # if self.position[0] < -50:
+        #     self.position = (self.bounds[0] / 2, self.bounds[1] / 2)
+        # if self.position[1] < -30:
+        #     self.position = (self.bounds[0] / 2, self.bounds[1] / 2)
+        # if self.position[0] > self.bounds[0] + 30:
+        #     self.position = (self.bounds[0] / 2, self.bounds[1] / 2)
+        # if self.position[1] > self.bounds[1] + 30:
+        #     self.position = (self.bounds[0] / 2, self.bounds[1] / 2)

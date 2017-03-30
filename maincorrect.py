@@ -7,7 +7,7 @@ import pygame
 def main():
     """Main execution func."""
     game = ConcreteGame("Concrete Game")
-    for iterator in range(2):
+    for iterator in range(0):
         game.addtobatch(boids.Agent((pygame.display.get_surface(
         ).get_width(), pygame.display.get_surface().get_height())))
     game.run()

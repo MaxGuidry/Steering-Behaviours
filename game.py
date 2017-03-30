@@ -3,8 +3,6 @@
 # from gameobject import GameObject
 import pygame
 
-from constants import *
-
 
 class GameTemplate(object):
     """pygame object."""

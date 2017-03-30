@@ -106,7 +106,6 @@ class Agent(object):
             currentangle += self.wanderangle
             direction = (math.cos((currentangle / 180) * math.pi),
                          math.sin((currentangle / 180) * math.pi))
-            #self.target = Agent((999999, 999999))
             self.target.position = ((self.position[0] + direction[0]),
                                     (self.position[1] + direction[1]))
         self.wandertimer += deltatime
@@ -158,11 +157,11 @@ class Agent(object):
     def _updateposition(self, deltatime):
         self.position = ((self.position[0]) + self.velocity[0] * deltatime,
                          (self.position[1]) + self.velocity[1] * deltatime)
-        # if self.position[0] < -50:
-        #     self.position = (self.bounds[0] / 2, self.bounds[1] / 2)
-        # if self.position[1] < -30:
-        #     self.position = (self.bounds[0] / 2, self.bounds[1] / 2)
-        # if self.position[0] > self.bounds[0] + 30:
-        #     self.position = (self.bounds[0] / 2, self.bounds[1] / 2)
-        # if self.position[1] > self.bounds[1] + 30:
-        #     self.position = (self.bounds[0] / 2, self.bounds[1] / 2)
+        if self.position[0] < -100:
+            self.position = (self.bounds[0] / 2, self.bounds[1] / 2)
+        if self.position[1] < -100:
+            self.position = (self.bounds[0] / 2, self.bounds[1] / 2)
+        if self.position[0] > self.bounds[0] + 100:
+            self.position = (self.bounds[0] / 2, self.bounds[1] / 2)
+        if self.position[1] > self.bounds[1] + 100:
+            self.position = (self.bounds[0] / 2, self.bounds[1] / 2)

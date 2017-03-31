@@ -22,7 +22,7 @@ class ConcreteGame(GameTemplate):
         self.font = pygame.font.SysFont('mono', 20)
         self._gameobjects = []
         self.targetboid = boids.Agent((pygame.display.get_surface(
-        ).get_width(), pygame.display.get_surface().get_height()))
+        ).get_width(), pygame.display.get_surface().get_height()), 75, 50)
 
     def addtobatch(self, gameobject):
         """Add gameobjects to this game."""
@@ -53,7 +53,15 @@ class ConcreteGame(GameTemplate):
                 if event.key == pygame.K_SPACE:
                     self.addtobatch(boids.Agent((pygame.display.get_surface(
                     ).get_width(),
-                        pygame.display.get_surface().get_height())))
+                        pygame.display.get_surface().get_height()), 75, 50))
+                if event.key == pygame.K_F1:
+                    self.addtobatch(boids.Agent((pygame.display.get_surface(
+                    ).get_width(),
+                        pygame.display.get_surface().get_height()), 150, 250))
+                if event.key == pygame.K_F2:
+                    self.addtobatch(boids.Agent((pygame.display.get_surface(
+                    ).get_width(),
+                        pygame.display.get_surface().get_height()), 100, 10))
                 if event.key == pygame.K_DELETE:
                     if len(self._gameobjects) > 0:
                         self._gameobjects.remove(
@@ -75,6 +83,7 @@ class ConcreteGame(GameTemplate):
                 if not self.wander:
                     gameobjs.target = self.targetboid
             gameobjs.update(self.deltatime)
+        
         return True
 
     def draw(self):

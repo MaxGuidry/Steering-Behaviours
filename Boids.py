@@ -14,13 +14,14 @@ class Agent(object):
     # pylint: disable=no-member
     # pylint: disable=too-many-function-args
 
-    def __init__(self, positionbound):
+    def __init__(self, positionbound, base, height):
         """Constructor."""
-        self.position = (0, 0)
-        self.velocity = (random.randrange(0, 200), random.randrange(0, 200))
+        self.position = (positionbound[0] / 2, positionbound[1] / 2)
+        self.velocity = (random.randrange(-400, 400),
+                         random.randrange(-400, 400))
         self.heading = (1, 0)
         self.acceleration = (0, 0)
-        self.maxvelo = 400
+        self.maxvelo = 200
         self.target = None
         self.forceapplied = (0, 0)
         self.bounds = positionbound
@@ -28,30 +29,38 @@ class Agent(object):
         self.wanderangle = 0
         self.scared = False
         self.bored = True
-        self.surface = pygame.Surface((75, 50), pygame.SRCALPHA)
+        self.surface = pygame.Surface((base, height), pygame.SRCALPHA)
+        self.mass = (.5 * self.surface.get_width() * self.surface.get_height()) / 1875
         pygame.draw.line(self.surface, (0,
                                         random.randrange(100, 256),
                                         random.randrange(0, 150)),
-                         (0, 0), (75, 25), 3)
+                         (0, 0), (base, height / 2), 3)
         pygame.draw.line(self.surface, (0,
                                         random.randrange(100, 256),
                                         random.randrange(0, 150)),
-                         (75, 25), (0, 50), 3)
+                         (base, height / 2), (0, height), 3)
         pygame.draw.line(self.surface, (0,
                                         random.randrange(100, 256),
                                         random.randrange(0, 150)),
-                         (0, 50), (0, 0), 3)
+                         (0, height), (0, 0), 3)
 
     def update(self, deltatime):
         """Update function for agents."""
         if self.scared:
-            self._addforce(self.flee())
+            self._addforce((self.flee()[0] * 1, self.flee()[1] * 1))
+            self._addforce((self.seek()[0] * 0, self.seek()[1] * 0))
+            #self._addforce((self.wandermax(self.mass)[0] * 1, self.wandermax(self.mass)[1] * 1))
         elif self.bored:
-            # self._addforce(self.wander(5, 90))
-            self._addforce(self.wandermax(deltatime))
+            # self._addforce(self.wander(90, 90))
+            #self._addforce((self.flee()[0] / 128, self.flee()[1] / 128))
+            #self._addforce((self.seek()[0] / 128, self.seek()[1] / 128))
+            self._addforce((self.wandermax(self.mass)[0], self.wandermax(self.mass)[1]))
         else:
-            self._addforce(self.seek())
-            self.wandertimer = 1
+            # self._addforce(self.wander(90, 90))
+            self._addforce((self.flee()[0] * 0, self.flee()[1] * 0))
+            self._addforce((self.seek()[0] * 1, self.seek()[1] * 1))
+            #self._addforce((self.wandermax(self.mass)[0], self.wandermax(self.mass)[1]))
+        self.wandertimer += deltatime
         self._updateacceleration()
         self._updatevelocity(deltatime)
         self._updateposition(deltatime)
@@ -104,7 +113,7 @@ class Agent(object):
         return (center_circle[0] + displacement[0],
                 center_circle[1] + displacement[1])
 
-    def wandermax(self, deltatime):
+    def wandermax(self, strength):
         """Behaviour that wanders."""
         time = random.uniform(.2, .4)
         if self.wandertimer > time:
@@ -118,7 +127,6 @@ class Agent(object):
                          math.sin((currentangle / 180) * math.pi))
             self.target.position = ((self.position[0] + direction[0]),
                                     (self.position[1] + direction[1]))
-        self.wandertimer += deltatime
         currentangle = math.atan2(
             self.heading[1], self.heading[0]) * (180 / math.pi)
         currentangle += self.wanderangle
@@ -128,22 +136,13 @@ class Agent(object):
         self.target.position = (self.position[0] + direction[0],
                                 self.position[1] + direction[1])
         forcetoadd = self.seek()
-        forcetoadd = (forcetoadd[0] * 45, forcetoadd[1] * 45)
+        forcetoadd = (forcetoadd[0] * self.maxvelo * strength / 4,
+                      forcetoadd[1] * self.maxvelo * strength / 4)
         return forcetoadd
 
     def settarget(self, target):
         """Set the target of the agent."""
         self.target = target
-
-    def centerofmass(self, boids):
-        """Calculate the center of mass of all agents."""
-        com = (0, 0)
-        for aboid in boids:
-            if aboid != self:
-                com = (com[0] + aboid.position[0], com[1] + aboid.position[1])
-        com = (com[0] / (len(boids) - 1), com[1] / (len(boids) - 1))
-        # self._addforce((vec.get_dist(com, self.position)[0] / 8,
-        # vec.get_dist(com, self.position)[1] / 8))
 
     def _addforce(self, forceapplied):
         if forceapplied is None:
@@ -152,8 +151,8 @@ class Agent(object):
                              self.forceapplied[1] + forceapplied[1])
 
     def _updateacceleration(self):
-        self.acceleration = (self.forceapplied[0],
-                             self.forceapplied[1])
+        self.acceleration = (self.forceapplied[0] / self.mass,
+                             self.forceapplied[1] / self.mass)
         self.forceapplied = (0, 0)
 
     def _updatevelocity(self, deltatime):
@@ -167,11 +166,11 @@ class Agent(object):
     def _updateposition(self, deltatime):
         self.position = ((self.position[0]) + self.velocity[0] * deltatime,
                          (self.position[1]) + self.velocity[1] * deltatime)
-        # if self.position[0] < -100:
-        #     self.position = (self.bounds[0] / 2, self.bounds[1] / 2)
-        # if self.position[1] < -100:
-        #     self.position = (self.bounds[0] / 2, self.bounds[1] / 2)
-        # if self.position[0] > self.bounds[0] + 100:
-        #     self.position = (self.bounds[0] / 2, self.bounds[1] / 2)
-        # if self.position[1] > self.bounds[1] + 100:
-        #     self.position = (self.bounds[0] / 2, self.bounds[1] / 2)
+        if self.position[0] < -100:
+            self.position = (self.bounds[0] / 2, self.bounds[1] / 2)
+        if self.position[1] < -100:
+            self.position = (self.bounds[0] / 2, self.bounds[1] / 2)
+        if self.position[0] > self.bounds[0] + 100:
+            self.position = (self.bounds[0] / 2, self.bounds[1] / 2)
+        if self.position[1] > self.bounds[1] + 100:
+            self.position = (self.bounds[0] / 2, self.bounds[1] / 2)

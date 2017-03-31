@@ -43,23 +43,38 @@ class Agent(object):
                                         random.randrange(100, 256),
                                         random.randrange(0, 150)),
                          (0, height), (0, 0), 3)
+    def updatealone(self, deltatime):
+        """Update function for agents."""
+        if self.scared:
+            self._addforce((self.flee()[0] * 1, self.flee()[1] * 1))
+            self.wandertimer = 1
+        elif self.bored:
+            # self._addforce(self.wander(90, 90))
+            self._addforce((self.wandermax(self.mass)[0], self.wandermax(self.mass)[1]))
+            self.wandertimer += deltatime
+        else:
+            self._addforce((self.seek()[0] * 1, self.seek()[1] * 1))
+            self.wandertimer = 1
+        self._updateacceleration()
+        self._updatevelocity(deltatime)
+        self._updateposition(deltatime)
 
     def update(self, deltatime):
         """Update function for agents."""
         if self.scared:
             self._addforce((self.flee()[0] * 1, self.flee()[1] * 1))
             self._addforce((self.seek()[0] * 0, self.seek()[1] * 0))
-            #self._addforce((self.wandermax(self.mass)[0] * 1, self.wandermax(self.mass)[1] * 1))
+            self._addforce((self.wandermax(self.mass)[0] * 1, self.wandermax(self.mass)[1] * 1))
         elif self.bored:
-            # self._addforce(self.wander(90, 90))
-            #self._addforce((self.flee()[0] / 128, self.flee()[1] / 128))
-            #self._addforce((self.seek()[0] / 128, self.seek()[1] / 128))
+            #self._addforce(self.wander(90, 90))
+            self._addforce((self.flee()[0] / 128, self.flee()[1] / 128))
+            self._addforce((self.seek()[0] / 128, self.seek()[1] / 128))
             self._addforce((self.wandermax(self.mass)[0], self.wandermax(self.mass)[1]))
         else:
             # self._addforce(self.wander(90, 90))
             self._addforce((self.flee()[0] * 0, self.flee()[1] * 0))
             self._addforce((self.seek()[0] * 1, self.seek()[1] * 1))
-            #self._addforce((self.wandermax(self.mass)[0], self.wandermax(self.mass)[1]))
+            self._addforce((self.wandermax(self.mass)[0], self.wandermax(self.mass)[1]))
         self.wandertimer += deltatime
         self._updateacceleration()
         self._updatevelocity(deltatime)
@@ -79,9 +94,9 @@ class Agent(object):
         direction = vec.get_normalized(displacement)
         if vec.get_magnitude(displacement) == 0:
             return self.flee()
-        return(direction[0] * vec.get_magnitude(displacement) * 4,
+        return(direction[0] * vec.get_magnitude(displacement),
                direction[1] *
-               vec.get_magnitude(displacement) * 4)
+               vec.get_magnitude(displacement))
 
     def flee(self):
         """Flee behavior."""
@@ -136,8 +151,8 @@ class Agent(object):
         self.target.position = (self.position[0] + direction[0],
                                 self.position[1] + direction[1])
         forcetoadd = self.seek()
-        forcetoadd = (forcetoadd[0] * self.maxvelo * strength / 4,
-                      forcetoadd[1] * self.maxvelo * strength / 4)
+        forcetoadd = (forcetoadd[0] * self.maxvelo * strength,
+                      forcetoadd[1] * self.maxvelo * strength)
         return forcetoadd
 
     def settarget(self, target):

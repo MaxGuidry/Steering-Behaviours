@@ -1,7 +1,8 @@
 """EXAMPLE MAIN."""
-from concretegame import ConcreteGame
-import boids
 import pygame
+
+import boids
+from concretegame import ConcreteGame
 
 
 def main():

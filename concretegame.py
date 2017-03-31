@@ -21,6 +21,7 @@ class ConcreteGame(GameTemplate):
         pygame.font.init()
         self.font = pygame.font.SysFont('mono', 20)
         self._gameobjects = []
+        self.singlebehaviors = False
         self.targetboid = boids.Agent((pygame.display.get_surface(
         ).get_width(), pygame.display.get_surface().get_height()), 75, 50)
 
@@ -41,6 +42,8 @@ class ConcreteGame(GameTemplate):
             if event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_ESCAPE:
                     return False
+                if event.key == pygame.K_F10:
+                    self.singlebehaviors = True if not self.singlebehaviors else False
                 if event.key == pygame.K_f:
                     self.flee = True
                     self.wander = False
@@ -82,14 +85,18 @@ class ConcreteGame(GameTemplate):
                     gameobjs.bored = False
                 if not self.wander:
                     gameobjs.target = self.targetboid
-            gameobjs.update(self.deltatime)
-        
+            if self.singlebehaviors:
+                gameobjs.update(self.deltatime)
+            else:
+                gameobjs.updatealone(self.deltatime)
         return True
 
     def draw(self):
         """Draw all gameobjects added to this game."""
         for gameobj in self._gameobjects:
             gameobj.draw(self.surface)
+            pygame.draw.line(self.surface, (255, 255, 255), gameobj.position, (gameobj.position[0] + gameobj.velocity[0], gameobj.position[1] + gameobj.velocity[1]), 2)
+            pygame.draw.line(self.surface, (255, 0, 0), gameobj.position, (gameobj.position[0] + gameobj.acceleration[0], gameobj.position[1] + gameobj.acceleration[1]), 2)
         test = "\'spacebar to spawn an agent\'    \'s to Seek\'"
         test = test + "     \'w to Wander\'    \'f to Flee\'"
         fps = "fps: {},  objects in game: {}".format(
@@ -98,6 +105,7 @@ class ConcreteGame(GameTemplate):
         testthing = self.font.render(test, True, (255, 255, 255))
         self.surface.blit(testthing, (0, 0))
         self.surface.blit(fpstext, (0, 20))
+
         super(ConcreteGame, self).draw()
 
     def run(self):

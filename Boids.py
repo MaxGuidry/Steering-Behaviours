@@ -17,10 +17,10 @@ class Agent(object):
     def __init__(self, positionbound):
         """Constructor."""
         self.position = (0, 0)
-        self.velocity = (100, 100)
+        self.velocity = (random.randrange(0, 200), random.randrange(0, 200))
         self.heading = (1, 0)
         self.acceleration = (0, 0)
-        self.maxvelo = 200
+        self.maxvelo = 400
         self.target = None
         self.forceapplied = (0, 0)
         self.bounds = positionbound
@@ -47,9 +47,9 @@ class Agent(object):
         if self.scared:
             self._addforce(self.flee())
         elif self.bored:
-            self._addforce(self.wander(deltatime))
+            # self._addforce(self.wander(5, 90))
+            self._addforce(self.wandermax(deltatime))
         else:
-            self.maxvelo = 200
             self._addforce(self.seek())
             self.wandertimer = 1
         self._updateacceleration()
@@ -90,11 +90,21 @@ class Agent(object):
         else:
             return (0, 0)
 
-    # def otherwander(self, radius, dist, jitter, strength):
-    #     """The correct way to wander."""
-    #     return None
+    def wander(self, distance, radius):
+        """Correct wander Behaviour."""
+        center_circle = vec.get_normalized(self.velocity)
+        center_circle = (center_circle[0] * distance,
+                         center_circle[1] * distance)
+        displacement = (0, radius)
+        self.wanderangle += (random.random() * 1) - (1 * .5)
+        displacement = (math.cos(self.wanderangle) *
+                        vec.get_magnitude(displacement),
+                        math.sin(self.wanderangle) *
+                        vec.get_magnitude(displacement))
+        return (center_circle[0] + displacement[0],
+                center_circle[1] + displacement[1])
 
-    def wander(self, deltatime):
+    def wandermax(self, deltatime):
         """Behaviour that wanders."""
         time = random.uniform(.2, .4)
         if self.wandertimer > time:
@@ -157,11 +167,11 @@ class Agent(object):
     def _updateposition(self, deltatime):
         self.position = ((self.position[0]) + self.velocity[0] * deltatime,
                          (self.position[1]) + self.velocity[1] * deltatime)
-        if self.position[0] < -100:
-            self.position = (self.bounds[0] / 2, self.bounds[1] / 2)
-        if self.position[1] < -100:
-            self.position = (self.bounds[0] / 2, self.bounds[1] / 2)
-        if self.position[0] > self.bounds[0] + 100:
-            self.position = (self.bounds[0] / 2, self.bounds[1] / 2)
-        if self.position[1] > self.bounds[1] + 100:
-            self.position = (self.bounds[0] / 2, self.bounds[1] / 2)
+        # if self.position[0] < -100:
+        #     self.position = (self.bounds[0] / 2, self.bounds[1] / 2)
+        # if self.position[1] < -100:
+        #     self.position = (self.bounds[0] / 2, self.bounds[1] / 2)
+        # if self.position[0] > self.bounds[0] + 100:
+        #     self.position = (self.bounds[0] / 2, self.bounds[1] / 2)
+        # if self.position[1] > self.bounds[1] + 100:
+        #     self.position = (self.bounds[0] / 2, self.bounds[1] / 2)

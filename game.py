@@ -25,6 +25,7 @@ class GameTemplate(object):
         return True
 
     def draw(self):
+        """Draw function for general game."""
         pygame.display.flip()
         self.surface.blit(self.background, (0, 0))
         return True

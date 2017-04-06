@@ -3,7 +3,7 @@ import math
 
 import pygame
 import random
-import boids
+import agent as boids
 from game import GameTemplate
 
 

@@ -30,7 +30,7 @@ class Agent(object):
         self.scared = False
         self.bored = True
         self.surface = pygame.Surface((base, height), pygame.SRCALPHA)
-        self.mass = (.5 * self.surface.get_width() * self.surface.get_height()) / 1875
+        self.mass = (.5 * self.surface.get_width() * self.surface.get_height()) / 1875.0
         pygame.draw.line(self.surface, (0,
                                         random.randrange(100, 256),
                                         random.randrange(0, 150)),
@@ -63,7 +63,7 @@ class Agent(object):
         """Update function for agents."""
         if self.scared:
             self._addforce((self.flee()[0] * 1, self.flee()[1] * 1))
-            self._addforce((self.seek()[0] * 0, self.seek()[1] * 0))
+            self._addforce((self.seek()[0] * .001, self.seek()[1] * .001))
             self._addforce((self.wandermax(self.mass)[0] * 1, self.wandermax(self.mass)[1] * 1))
         elif self.bored:
             #self._addforce(self.wander(90, 90))
@@ -72,7 +72,7 @@ class Agent(object):
             self._addforce((self.wandermax(self.mass)[0], self.wandermax(self.mass)[1]))
         else:
             # self._addforce(self.wander(90, 90))
-            self._addforce((self.flee()[0] * 0, self.flee()[1] * 0))
+            self._addforce((self.flee()[0] * .001, self.flee()[1] * .001))
             self._addforce((self.seek()[0] * 1, self.seek()[1] * 1))
             self._addforce((self.wandermax(self.mass)[0], self.wandermax(self.mass)[1]))
         self.wandertimer += deltatime

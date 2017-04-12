@@ -22,14 +22,14 @@ class ConcreteGame(GameTemplate):
         self.font = pygame.font.SysFont('mono', 20)
         self._gameobjects = []
         self.singlebehaviors = False
-        self.targetboid = boids.Agent((pygame.display.get_surface(
+        self.targetagent = boids.Agent((pygame.display.get_surface(
         ).get_width(), pygame.display.get_surface().get_height()), 75, 50)
 
     def addtobatch(self, gameobject):
         """Add gameobjects to this game."""
         self._gameobjects.append(gameobject)
         if type(gameobject) == boids.Agent:
-            gameobject.settarget(self.targetboid)
+            gameobject.settarget(self.targetagent)
 
     def update(self):
         """Update this games logic."""
@@ -72,7 +72,7 @@ class ConcreteGame(GameTemplate):
                                 random.randrange(0, len(self._gameobjects))])
             if event.type == pygame.QUIT:
                 return False
-        self.targetboid.position = pygame.mouse.get_pos()
+        self.targetagent.position = pygame.mouse.get_pos()
         for gameobjs in self._gameobjects:
             if type(gameobjs) == boids.Agent:
                 if self.flee:
@@ -84,7 +84,7 @@ class ConcreteGame(GameTemplate):
                 else:
                     gameobjs.bored = False
                 if not self.wander:
-                    gameobjs.target = self.targetboid
+                    gameobjs.target = self.targetagent
             if self.singlebehaviors:
                 gameobjs.update(self.deltatime)
             else:

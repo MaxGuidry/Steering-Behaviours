@@ -43,14 +43,15 @@ class Agent(object):
                                         random.randrange(100, 256),
                                         random.randrange(0, 150)),
                          (0, height), (0, 0), 3)
+
     def updatealone(self, deltatime):
         """Update function for agents."""
         if self.scared:
             self._addforce((self.flee()[0] * 1, self.flee()[1] * 1))
             self.wandertimer = 1
         elif self.bored:
-            # self._addforce(self.wander(90, 90))
-            self._addforce((self.wandermax(self.mass)[0], self.wandermax(self.mass)[1]))
+            self._addforce(self.wander(90, 90))
+            # self._addforce((self.wandermax(self.mass)[0], self.wandermax(self.mass)[1]))
             self.wandertimer += deltatime
         else:
             self._addforce((self.seek()[0] * 1, self.seek()[1] * 1))
